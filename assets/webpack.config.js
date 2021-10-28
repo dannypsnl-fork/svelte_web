@@ -10,6 +10,14 @@ module.exports = (env, options) => {
   const devMode = options.mode !== "production";
 
   return {
+    resolve: {
+      alias: {
+        svelte: path.resolve("node_modules", "svelte"),
+      },
+      extensions: [".mjs", ".js", ".svelte"],
+      mainFields: ["svelte", "browser", "module", "main"],
+      modules: ["node_modules"],
+    },
     optimization: {
       minimizer: [
         new TerserPlugin({ cache: true, parallel: true, sourceMap: devMode }),
@@ -27,6 +35,21 @@ module.exports = (env, options) => {
     devtool: devMode ? "eval-cheap-module-source-map" : undefined,
     module: {
       rules: [
+        {
+          test: /\.mjs$/,
+          include: /node_modules/,
+          type: "javascript/auto",
+        },
+        {
+          test: /\.(html|svelte)$/,
+          exclude: /node_modules/,
+          use: {
+            loader: "svelte-loader",
+            options: {
+              hotReload: true,
+            },
+          },
+        },
         {
           test: /\.js$/,
           exclude: /node_modules/,
